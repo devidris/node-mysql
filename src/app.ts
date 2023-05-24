@@ -8,15 +8,21 @@ const connectToDatabase = ConnectToDatabase(
   "node-mysql"
 );
 
-const queryDatabase = new QueryDatabase(connectToDatabase,'users')
-queryDatabase.Get('username','password','password').then(result=>{
+const queryDatabase = new QueryDatabase(connectToDatabase, "users");
+queryDatabase.Get("username", "password", "password").then((result) => {
   // console.log(result)
-})
-queryDatabase.GetAdvanced({
-  column_name: ['username,email'],
-  where:{
-    password:'password',
-  }
-}).then(result=>{
+});
+queryDatabase
+  .GetAdvanced({
+    column_name: ["username,email"],
+    where: {
+      password: "password",
+    },
+  })
+  .then((result) => {
+    // console.log(result)
+  });
+
+queryDatabase.GetAll(1).then((result) => {
   console.log(result)
-})
+});

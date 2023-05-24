@@ -38,7 +38,6 @@ export class QueryDatabase implements IQueryDatabase {
     return new Promise((resolve, reject) => {
       const column_name: string = params.column_name.join();
       let where: string = "";
-      console.log(params);
       for (let [key, value] of Object.entries(params.where)) {
         where += `${key} = '${value}' AND `;
       }
@@ -51,7 +50,26 @@ export class QueryDatabase implements IQueryDatabase {
       } else {
         sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where} LIMIT ${limit};`;
       }
-      console.log(sql);
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  GetAll(limit: number | null = null) {
+    return new Promise((resolve, reject) => {
+      let sql: string;
+      if (!limit) {
+        sql = `SELECT * FROM ${this.table_name} ;`;
+      } else {
+        sql = `SELECT * FROM ${this.table_name}  LIMIT ${limit};`;
+      }
       const query = this.#db.query(sql, (err: Error, result: any) => {
         if (err) {
           console.error(err);
