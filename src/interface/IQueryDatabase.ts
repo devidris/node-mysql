@@ -41,4 +41,6 @@ export interface IQueryDatabase {
   Delete(column_name: string, value: string, limit: number | null): any;
 
   DeleteAdvanced(where: any, limit: number | null): any;
+
+  DeleteAll(table_name:string): any;
 }

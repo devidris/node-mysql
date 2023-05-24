@@ -328,4 +328,20 @@ export class QueryDatabase implements IQueryDatabase {
       });
     });
   }
+
+  DeleteAll(table_name:string) {
+    return new Promise((resolve, reject) => {
+      if(table_name !== this.table_name) throw new Error('Table name is not the same')
+     let sql = `DELETE FROM ${this.table_name} ;`;
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(result);
+        }
+      });
+    });
+  }
 }

@@ -95,14 +95,14 @@ const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 //     console.log(result);
 //   });
 
-queryDatabase
-  .Delete(
-    'username','password',
+// queryDatabase
+//   .Delete(
+//     'username','password',
     
-  )
-  .then((result) => {
-    console.log(result);
-  });
+//   )
+//   .then((result) => {
+//     console.log(result);
+//   });
 // queryDatabase
 //   .DeleteAdvanced(
 //     {
@@ -113,3 +113,11 @@ queryDatabase
 //   .then((result) => {
 //     console.log(result);
 //   });
+
+queryDatabase
+  .DeleteAll(
+    'users'  
+  )
+  .then((result) => {
+    console.log(result);
+  });
