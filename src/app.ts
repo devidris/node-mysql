@@ -27,12 +27,34 @@ queryDatabase.GetAll(1).then((result) => {
   // console.log(result)
 });
 
-queryDatabase
-  .Insert({
-    username: "idris",
-    password: "password",
-    email: "saiduidris15@gmail.com",
-  })
-  .then((result) => {
-    console.log(result);
-  });
+// queryDatabase
+//   .Insert({
+//     username: "idris",
+//     password: "password",
+//     email: "saiduidris15@gmail.com",
+//   })
+//   .then((result) => {
+//     // console.log(result);
+//   });
+
+// queryDatabase
+//   .InsertMultiple([
+//     {
+//       username: "idris",
+//       password: "password",
+//       email: "saiduidris15@gmail.com",
+//     },
+//     {
+//       username: "idris",
+//       password: "password",
+//       email: "saiduidris13@gmail.com",
+//     },
+//     {
+//       username: "idris",
+//       password: "password",
+//       email: "saiduidris176@gmail.com",
+//     },
+//   ])
+//   .then((result) => {
+//     console.log(result);
+//   });

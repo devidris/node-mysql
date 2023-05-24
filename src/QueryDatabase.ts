@@ -97,19 +97,63 @@ export class QueryDatabase implements IQueryDatabase {
     });
   }
 
-  Insert(params: any, limit: number | null = null) {
+  Insert(params: any) {
     return new Promise((resolve, reject) => {
       let column_name: string | string[] = [];
       let value: string | string[] = [];
+
+      this.checkObject(params, "param");
+
       for (let [key, val] of Object.entries(params)) {
         column_name.push(key);
         value.push(val as string);
       }
       column_name = column_name.join();
-      value = value.map(value=>`'${value}'`).join();
+      value = value.map((value) => `'${value}'`).join();
 
-      const sql = `INSERT INTO ${this.table_name} (${column_name}) Values (${value})`;
+      const sql = `INSERT INTO ${this.table_name} (${column_name}) VALUES (${value})`;
       console.log(sql);
+
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(this.GetAll());
+        }
+      });
+    });
+  }
+
+  InsertMultiple(params: any[]) {
+    return new Promise((resolve, reject) => {
+      let column_name: string | string[] = [];
+      let value: any = [];
+
+      this.checkArray(params, "param");
+
+      for (let [key, val] of Object.entries(params[0])) {
+        column_name.push(key);
+      }
+
+      params.forEach((param, i: number) => {
+        for (let [key, val] of Object.entries(param)) {
+          if (value[i]) value[i].push(val);
+          if (!value[i]) value[i] = [val];
+        }
+      });
+      column_name = column_name.join();
+
+      value = value
+        .map((value: string[]) => {
+          return value.map((value) => `'${value}'`).join();
+        })
+        .map((value: string) => {
+          return "(" + value + ")";
+        })
+        .join();
+      const sql = `INSERT INTO ${this.table_name} (${column_name}) VALUES ${value}`;
 
       const query = this.#db.query(sql, (err: Error, result: any) => {
         if (err) {
