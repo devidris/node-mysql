@@ -24,4 +24,6 @@ export interface IQueryDatabase {
   Update(column_name: string,column_value: string, where: string, value: string, limit: number|null): any;
 
   UpdateAdvanced(params: IUpdateAdvancedParam,limit:number|null): any;
+
+  UpdateAll(set:any,limit:number|null):any
 }

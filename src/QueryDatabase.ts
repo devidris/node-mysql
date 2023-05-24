@@ -248,4 +248,34 @@ export class QueryDatabase implements IQueryDatabase {
       });
     });
   }
+
+  UpdateAll(set: any, limit: number | null = null) {
+    return new Promise((resolve, reject) => {
+      this.checkObject(set, "set");
+      let update: string = "";
+      for (let [key, value] of Object.entries(set)) {
+        update += `${key} = '${value}' ,`;
+      }
+
+      if (update.endsWith(",")) {
+        update = update.slice(0, -1);
+      }
+      let sql: string;
+      if (!limit) {
+        sql = `UPDATE ${this.table_name} SET ${update} ;`;
+      } else {
+        sql = `UPDATE ${this.table_name} SET ${update}  LIMIT ${limit};`;
+      }
+  
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(result);
+        }
+      });
+    });
+  }
 }

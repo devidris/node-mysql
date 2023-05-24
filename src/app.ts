@@ -65,17 +65,29 @@ queryDatabase.GetAll(1).then((result) => {
 //     console.log(result);
 //   });
 
+// queryDatabase
+//   .UpdateAdvanced(
+//     {
+//       update: {
+//         username: "password",
+//         email: "idris",
+//       },
+//       where: {
+//         password: "password",
+//         email: "saiduidris15@gmail.com",
+//       },
+//     },
+//     1
+//   )
+//   .then((result) => {
+//     console.log(result);
+//   });
+
 queryDatabase
-  .UpdateAdvanced(
+  .UpdateAll(
     {
-      update: {
-        username: "password",
-        email: "idris",
-      },
-      where: {
-        password: "password",
-        email: "saiduidris15@gmail.com",
-      },
+      username: "password",
+      email: "idris",
     },
     1
   )
