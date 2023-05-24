@@ -1,5 +1,5 @@
-const mysql = require("mysql2");
-function ConnectToDatabase(
+import mysql = require("mysql2");
+export function ConnectToDatabase(
   host: string,
   user: string,
   password: string,
@@ -27,5 +27,3 @@ function ConnectToDatabase(
     queueLimit: 0,
   });
 }
-
-module.exports = ConnectToDatabase;
