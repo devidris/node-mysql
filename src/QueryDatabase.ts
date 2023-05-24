@@ -279,6 +279,26 @@ export class QueryDatabase implements IQueryDatabase {
     });
   }
 
+  Delete(column_name: string, value:string, limit: number | null = null) {
+    return new Promise((resolve, reject) => {
+      let sql:string = ''
+      if (!limit) {
+        sql = `DELETE FROM ${this.table_name} WHERE ${column_name} = ${value};`;
+      } else {
+        sql = `DELETE FROM ${this.table_name} WHERE ${column_name} = '${value}' LIMIT ${limit};`;
+      }
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(result);
+        }
+      });
+    });
+  }
+
   DeleteAdvanced(where: any, limit: number | null = null) {
     return new Promise((resolve, reject) => {
       let value: string = "";

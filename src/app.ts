@@ -96,12 +96,20 @@ const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 //   });
 
 queryDatabase
-  .DeleteAdvanced(
-    {
-      username: "password",
-    },
-    1
+  .Delete(
+    'username','password',
+    
   )
   .then((result) => {
     console.log(result);
   });
+// queryDatabase
+//   .DeleteAdvanced(
+//     {
+//       username: "password",
+//     },
+//     1
+//   )
+//   .then((result) => {
+//     console.log(result);
+//   });
