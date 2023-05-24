@@ -1,4 +1,8 @@
-import { IGetMultiple, IQueryDatabase } from "./interface/IQueryDatabase";
+import {
+  IGetAdvancedParam,
+  IQueryDatabase,
+  IUpdateAdvancedParam,
+} from "./interface/IQueryDatabase";
 
 export class QueryDatabase implements IQueryDatabase {
   #db: any;
@@ -53,7 +57,7 @@ export class QueryDatabase implements IQueryDatabase {
     });
   }
 
-  GetAdvanced(params: IGetMultiple, limit: number | null = null) {
+  GetAdvanced(params: IGetAdvancedParam, limit: number | null = null) {
     return new Promise((resolve, reject) => {
       this.checkArray(params.column_name, "params.column_name");
       this.checkObject(params.where, "params.where");
@@ -127,7 +131,7 @@ export class QueryDatabase implements IQueryDatabase {
           reject(err);
         } else {
           this.#db.releaseConnection(query);
-          resolve(this.GetAll());
+          resolve(result);
         }
       });
     });
@@ -168,7 +172,7 @@ export class QueryDatabase implements IQueryDatabase {
           reject(err);
         } else {
           this.#db.releaseConnection(query);
-          resolve(this.GetAll());
+          resolve(result);
         }
       });
     });
@@ -200,7 +204,46 @@ export class QueryDatabase implements IQueryDatabase {
           reject(err);
         } else {
           this.#db.releaseConnection(query);
-          resolve(this.GetAll());
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  UpdateAdvanced(params: IUpdateAdvancedParam, limit: number | null = null) {
+    return new Promise((resolve, reject) => {
+      this.checkObject(params.update, "params.update");
+      this.checkObject(params.where, "params.where");
+
+      let update: string = "";
+      let where: string = "";
+      for (let [key, value] of Object.entries(params.update)) {
+        update += `${key} = '${value}' ,`;
+      }
+      for (let [key, value] of Object.entries(params.where)) {
+        where += `${key} = '${value}' AND `;
+      }
+
+      if (update.endsWith(",")) {
+        update = update.slice(0, -1);
+      }
+
+      if (where.endsWith("AND ")) {
+        where = where.slice(0, -4);
+      }
+      let sql: string;
+      if (!limit) {
+        sql = `UPDATE  ${this.table_name} SET ${update} WHERE ${where};`;
+      } else {
+        sql = `UPDATE  ${this.table_name} SET ${update} WHERE ${where} LIMIT ${limit};`;
+      }
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(result);
         }
       });
     });

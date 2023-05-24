@@ -59,8 +59,26 @@ queryDatabase.GetAll(1).then((result) => {
 //     console.log(result);
 //   });
 
+// queryDatabase
+//   .Update("username", "idris", "username", "saidu", 1)
+//   .then((result) => {
+//     console.log(result);
+//   });
+
 queryDatabase
-  .Update("username", "idris", "username", "saidu", 1)
+  .UpdateAdvanced(
+    {
+      update: {
+        username: "password",
+        email: "idris",
+      },
+      where: {
+        password: "password",
+        email: "saiduidris15@gmail.com",
+      },
+    },
+    1
+  )
   .then((result) => {
     console.log(result);
   });
