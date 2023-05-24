@@ -279,7 +279,7 @@ export class QueryDatabase implements IQueryDatabase {
     });
   }
 
-  Delete(where: any, limit: number | null = null) {
+  DeleteAdvanced(where: any, limit: number | null = null) {
     return new Promise((resolve, reject) => {
       let value: string = "";
 

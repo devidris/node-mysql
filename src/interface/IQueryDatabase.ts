@@ -38,5 +38,5 @@ export interface IQueryDatabase {
 
   UpdateAll(set: any, limit: number | null): any;
 
-  Delete(where: any, limit: number | null): any;
+  DeleteAdvanced(where: any, limit: number | null): any;
 }

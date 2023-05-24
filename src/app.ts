@@ -96,7 +96,7 @@ const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 //   });
 
 queryDatabase
-  .Delete(
+  .DeleteAdvanced(
     {
       username: "password",
     },
