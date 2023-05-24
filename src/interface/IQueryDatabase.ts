@@ -15,4 +15,6 @@ export interface IQueryDatabase {
   Insert(params:any):any
 
   InsertMultiple(params:any[]):any
+
+  Update(column_name: string,column_value: string, where: string, value: string, limit: number|null): any;
 }

@@ -21,6 +21,10 @@ export class QueryDatabase implements IQueryDatabase {
     if (Object.keys(obj).length < 1)
       throw new Error(name + " must have a value");
   }
+
+  checkString(str: String) {
+    if (!str) throw new Error(str + " is not set");
+  }
   Get(
     column_name: string,
     where: string,
@@ -28,6 +32,9 @@ export class QueryDatabase implements IQueryDatabase {
     limit: number | null = null
   ) {
     return new Promise((resolve, reject) => {
+      this.checkString(column_name);
+      this.checkString(where);
+      this.checkString(value);
       let sql: string;
       if (!limit) {
         sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}';`;
@@ -154,6 +161,38 @@ export class QueryDatabase implements IQueryDatabase {
         })
         .join();
       const sql = `INSERT INTO ${this.table_name} (${column_name}) VALUES ${value}`;
+
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(this.GetAll());
+        }
+      });
+    });
+  }
+
+  Update(
+    column_name: string,
+    column_value: string,
+    where: string,
+    value: string,
+    limit: number | null = null
+  ) {
+    return new Promise((resolve, reject) => {
+      let sql: string;
+      this.checkString(column_name);
+      this.checkString(column_value);
+      this.checkString(where);
+      this.checkString(value);
+
+      if (!limit) {
+        sql = `UPDATE ${this.table_name} SET ${column_name} ='${column_value}' WHERE ${where}='${value}';`;
+      } else {
+        sql = `UPDATE ${this.table_name} SET ${column_name} ='${column_value}' WHERE ${where}='${value}' LIMIT ${limit};`;
+      }
 
       const query = this.#db.query(sql, (err: Error, result: any) => {
         if (err) {

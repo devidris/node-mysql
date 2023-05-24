@@ -58,3 +58,9 @@ queryDatabase.GetAll(1).then((result) => {
 //   .then((result) => {
 //     console.log(result);
 //   });
+
+queryDatabase
+  .Update("username", "idris", "username", "saidu", 1)
+  .then((result) => {
+    console.log(result);
+  });
