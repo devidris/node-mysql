@@ -114,10 +114,10 @@ const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 //     console.log(result);
 //   });
 
-queryDatabase
-  .DeleteAll(
-    'users'  
-  )
-  .then((result) => {
-    console.log(result);
-  });
+// queryDatabase
+//   .DeleteAll(
+//     'users'  
+//   )
+//   .then((result) => {
+//     console.log(result);
+//   });

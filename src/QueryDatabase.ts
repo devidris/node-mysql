@@ -4,12 +4,42 @@ import {
   IUpdateAdvancedParam,
 } from "./interface/IQueryDatabase";
 
+interface ICreateTable {
+  name: string;
+  rows: any;
+}
 export class QueryDatabase implements IQueryDatabase {
   #db: any;
   table_name!: string;
-  constructor(db: any, table_name: string) {
+  constructor(
+    db: any,
+    table_name: string,
+    create_table: boolean | ICreateTable = false
+  ) {
     this.#db = db;
     this.table_name = table_name;
+    if (create_table) {
+      this.checkObject(create_table, "create_table");
+      let rows = "";
+      for (let [key, value] of Object.entries(
+        (create_table as ICreateTable).rows
+      )) {
+        rows += key + " " + value + ",";
+      }
+      if (rows.endsWith(",")) {
+        rows = rows.slice(0, -1);
+      }
+      const sql = `CREATE TABLE ${(create_table as ICreateTable).name} (${rows})`;
+      console.log(sql)
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+        } else {
+          this.#db.releaseConnection(query);
+          console.log(result)
+        }
+      });
+    }
   }
 
   checkArray(arr: any[], name: string) {
@@ -279,9 +309,9 @@ export class QueryDatabase implements IQueryDatabase {
     });
   }
 
-  Delete(column_name: string, value:string, limit: number | null = null) {
+  Delete(column_name: string, value: string, limit: number | null = null) {
     return new Promise((resolve, reject) => {
-      let sql:string = ''
+      let sql: string = "";
       if (!limit) {
         sql = `DELETE FROM ${this.table_name} WHERE ${column_name} = ${value};`;
       } else {
@@ -311,7 +341,7 @@ export class QueryDatabase implements IQueryDatabase {
       if (value.endsWith("AND ")) {
         value = value.slice(0, -4);
       }
-      let sql:string = ''
+      let sql: string = "";
       if (!limit) {
         sql = `DELETE FROM ${this.table_name} WHERE ${value};`;
       } else {
@@ -329,10 +359,11 @@ export class QueryDatabase implements IQueryDatabase {
     });
   }
 
-  DeleteAll(table_name:string) {
+  DeleteAll(table_name: string) {
     return new Promise((resolve, reject) => {
-      if(table_name !== this.table_name) throw new Error('Table name is not the same')
-     let sql = `DELETE FROM ${this.table_name} ;`;
+      if (table_name !== this.table_name)
+        throw new Error("Table name is not the same");
+      let sql = `DELETE FROM ${this.table_name} ;`;
       const query = this.#db.query(sql, (err: Error, result: any) => {
         if (err) {
           console.error(err);
