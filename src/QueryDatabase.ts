@@ -36,6 +36,18 @@ export class QueryDatabase implements IQueryDatabase {
 
   GetAdvanced(params: IGetMultiple, limit: number | null = null) {
     return new Promise((resolve, reject) => {
+      if (!params.column_name) throw new Error("params.column_name is not set");
+      if (!Array.isArray(params.column_name))
+        throw new Error("params.column_name is meant to be an array");
+      if (params.column_name.length < 1)
+        throw new Error("params.column_name must have a value");
+
+      if (!params.where) throw new Error("params.where is not set");
+      if (Object.prototype.toString.call(params.where) !== "[object Object]")
+        throw new Error("params.where is meant to be an object");
+      if (Object.keys(params.where).length < 1)
+        throw new Error("params.where must have a value");
+        
       const column_name: string = params.column_name.join();
       let where: string = "";
       for (let [key, value] of Object.entries(params.where)) {

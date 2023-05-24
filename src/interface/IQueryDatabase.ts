@@ -9,4 +9,5 @@ export interface IQueryDatabase {
   GetAdvanced(params: IGetMultiple,limit:number|null): any;
 
   GetAll(limit:number|null):any
+
 }
