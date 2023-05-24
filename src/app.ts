@@ -9,6 +9,14 @@ const connectToDatabase = ConnectToDatabase(
 );
 
 const queryDatabase = new QueryDatabase(connectToDatabase,'users')
-queryDatabase.Get('username','password','password',2).then(result=>{
+queryDatabase.Get('username','password','password').then(result=>{
+  // console.log(result)
+})
+queryDatabase.GetAdvanced({
+  column_name: ['username,email'],
+  where:{
+    password:'password',
+  }
+}).then(result=>{
   console.log(result)
 })
