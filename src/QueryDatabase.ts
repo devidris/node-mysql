@@ -266,7 +266,37 @@ export class QueryDatabase implements IQueryDatabase {
       } else {
         sql = `UPDATE ${this.table_name} SET ${update}  LIMIT ${limit};`;
       }
-  
+
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  Delete(where: any, limit: number | null = null) {
+    return new Promise((resolve, reject) => {
+      let value: string = "";
+
+      this.checkObject(where, "param");
+
+      for (let [key, val] of Object.entries(where)) {
+        value += `${key} = '${val}' AND `;
+      }
+      if (value.endsWith("AND ")) {
+        value = value.slice(0, -4);
+      }
+      let sql:string = ''
+      if (!limit) {
+        sql = `DELETE FROM ${this.table_name} WHERE ${value};`;
+      } else {
+        sql = `DELETE FROM ${this.table_name} WHERE ${value} LIMIT ${limit};`;
+      }
       const query = this.#db.query(sql, (err: Error, result: any) => {
         if (err) {
           console.error(err);

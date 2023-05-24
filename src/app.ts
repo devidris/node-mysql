@@ -9,33 +9,33 @@ const connectToDatabase = ConnectToDatabase(
 );
 
 const queryDatabase = new QueryDatabase(connectToDatabase, "users");
-queryDatabase.Get("username", "password", "password").then((result) => {
-  // console.log(result)
-});
-queryDatabase
-  .GetAdvanced({
-    column_name: ["username,email"],
-    where: {
-      password: "password",
-    },
-  })
-  .then((result) => {
-    // console.log(result)
-  });
+// queryDatabase.Get("username", "password", "password").then((result) => {
+//   console.log(result)
+// });
+// queryDatabase
+//   .GetAdvanced({
+//     column_name: ["username,email"],
+//     where: {
+//       password: "password",
+//     },
+//   })
+//   .then((result) => {
+//     console.log(result)
+//   });
 
-queryDatabase.GetAll(1).then((result) => {
-  // console.log(result)
-});
+// queryDatabase.GetAll(1).then((result) => {
+//   console.log(result)
+// });
 
 // queryDatabase
 //   .Insert({
 //     username: "idris",
 //     password: "password",
 //     email: "saiduidris15@gmail.com",
-//   })
+/// console.log(result);
+//   });/   })
 //   .then((result) => {
-//     // console.log(result);
-//   });
+//
 
 // queryDatabase
 //   .InsertMultiple([
@@ -83,11 +83,22 @@ queryDatabase.GetAll(1).then((result) => {
 //     console.log(result);
 //   });
 
+// queryDatabase
+//   .UpdateAll(
+//     {
+//       username: "password",
+//       email: "idris",
+//     },
+//     1
+//   )
+//   .then((result) => {
+//     console.log(result);
+//   });
+
 queryDatabase
-  .UpdateAll(
+  .Delete(
     {
       username: "password",
-      email: "idris",
     },
     1
   )
