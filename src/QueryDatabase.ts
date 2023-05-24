@@ -29,14 +29,16 @@ export class QueryDatabase implements IQueryDatabase {
       if (rows.endsWith(",")) {
         rows = rows.slice(0, -1);
       }
-      const sql = `CREATE TABLE ${(create_table as ICreateTable).name} (${rows})`;
-      console.log(sql)
+      const sql = `CREATE TABLE ${
+        (create_table as ICreateTable).name
+      } (${rows})`;
+      console.log(sql);
       const query = this.#db.query(sql, (err: Error, result: any) => {
         if (err) {
           console.error(err);
         } else {
           this.#db.releaseConnection(query);
-          console.log(result)
+          console.log(result);
         }
       });
     }
@@ -56,8 +58,8 @@ export class QueryDatabase implements IQueryDatabase {
       throw new Error(name + " must have a value");
   }
 
-  checkString(str: String) {
-    if (!str) throw new Error(str + " is not set");
+  checkString(str: String, msg: string) {
+    if (!str) throw new Error(msg + " is not set");
   }
   Get(
     column_name: string,
@@ -66,9 +68,9 @@ export class QueryDatabase implements IQueryDatabase {
     limit: number | null = null
   ) {
     return new Promise((resolve, reject) => {
-      this.checkString(column_name);
-      this.checkString(where);
-      this.checkString(value);
+      this.checkString(column_name, "column_name");
+      this.checkString(where, "where");
+      this.checkString(value, "value");
       let sql: string;
       if (!limit) {
         sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}';`;
@@ -217,10 +219,10 @@ export class QueryDatabase implements IQueryDatabase {
   ) {
     return new Promise((resolve, reject) => {
       let sql: string;
-      this.checkString(column_name);
-      this.checkString(column_value);
-      this.checkString(where);
-      this.checkString(value);
+      this.checkString(column_name, "column_name");
+      this.checkString(column_value, "column_value");
+      this.checkString(where, "where");
+      this.checkString(value, "value");
 
       if (!limit) {
         sql = `UPDATE ${this.table_name} SET ${column_name} ='${column_value}' WHERE ${where}='${value}';`;
@@ -364,6 +366,21 @@ export class QueryDatabase implements IQueryDatabase {
       if (table_name !== this.table_name)
         throw new Error("Table name is not the same");
       let sql = `DELETE FROM ${this.table_name} ;`;
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  CustomSQL(sql: string) {
+    return new Promise((resolve, reject) => {
+      this.checkString(sql, "sql");
       const query = this.#db.query(sql, (err: Error, result: any) => {
         if (err) {
           console.error(err);

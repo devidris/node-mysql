@@ -44,4 +44,5 @@ export interface IQueryDatabase {
 
   DeleteAll(table_name: string): any;
 
+  CustomSQL(sql: string): any;
 }
