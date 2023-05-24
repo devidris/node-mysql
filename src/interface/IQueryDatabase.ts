@@ -10,4 +10,5 @@ export interface IQueryDatabase {
 
   GetAll(limit:number|null):any
 
+  Insert(params:any,limit:number|null):any
 }

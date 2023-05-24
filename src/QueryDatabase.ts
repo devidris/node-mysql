@@ -1,6 +1,4 @@
 import { IGetMultiple, IQueryDatabase } from "./interface/IQueryDatabase";
-import { table } from "console";
-import mysql = require("mysql2");
 
 export class QueryDatabase implements IQueryDatabase {
   #db: any;
@@ -8,6 +6,20 @@ export class QueryDatabase implements IQueryDatabase {
   constructor(db: any, table_name: string) {
     this.#db = db;
     this.table_name = table_name;
+  }
+
+  checkArray(arr: any[], name: string) {
+    if (!arr) throw new Error(name + " is not set");
+    if (!Array.isArray(arr)) throw new Error(name + " is meant to be an array");
+    if (arr.length < 1) throw new Error(name + " must have a value");
+  }
+
+  checkObject(obj: Object, name: string) {
+    if (!obj) throw new Error(name + " is not set");
+    if (Object.prototype.toString.call(obj) !== "[object Object]")
+      throw new Error(name + " is meant to be an object");
+    if (Object.keys(obj).length < 1)
+      throw new Error(name + " must have a value");
   }
   Get(
     column_name: string,
@@ -36,18 +48,9 @@ export class QueryDatabase implements IQueryDatabase {
 
   GetAdvanced(params: IGetMultiple, limit: number | null = null) {
     return new Promise((resolve, reject) => {
-      if (!params.column_name) throw new Error("params.column_name is not set");
-      if (!Array.isArray(params.column_name))
-        throw new Error("params.column_name is meant to be an array");
-      if (params.column_name.length < 1)
-        throw new Error("params.column_name must have a value");
+      this.checkArray(params.column_name, "params.column_name");
+      this.checkObject(params.where, "params.where");
 
-      if (!params.where) throw new Error("params.where is not set");
-      if (Object.prototype.toString.call(params.where) !== "[object Object]")
-        throw new Error("params.where is meant to be an object");
-      if (Object.keys(params.where).length < 1)
-        throw new Error("params.where must have a value");
-        
       const column_name: string = params.column_name.join();
       let where: string = "";
       for (let [key, value] of Object.entries(params.where)) {
@@ -89,6 +92,32 @@ export class QueryDatabase implements IQueryDatabase {
         } else {
           this.#db.releaseConnection(query);
           resolve(result);
+        }
+      });
+    });
+  }
+
+  Insert(params: any, limit: number | null = null) {
+    return new Promise((resolve, reject) => {
+      let column_name: string | string[] = [];
+      let value: string | string[] = [];
+      for (let [key, val] of Object.entries(params)) {
+        column_name.push(key);
+        value.push(val as string);
+      }
+      column_name = column_name.join();
+      value = value.map(value=>`'${value}'`).join();
+
+      const sql = `INSERT INTO ${this.table_name} (${column_name}) Values (${value})`;
+      console.log(sql);
+
+      const query = this.#db.query(sql, (err: Error, result: any) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          this.#db.releaseConnection(query);
+          resolve(this.GetAll());
         }
       });
     });

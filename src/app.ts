@@ -24,5 +24,15 @@ queryDatabase
   });
 
 queryDatabase.GetAll(1).then((result) => {
-  console.log(result)
+  // console.log(result)
 });
+
+queryDatabase
+  .Insert({
+    username: "idris",
+    password: "password",
+    email: "saiduidris15@gmail.com",
+  })
+  .then((result) => {
+    console.log(result);
+  });
