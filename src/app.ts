@@ -1,6 +1,10 @@
 import { ConnectToDatabase } from "./ConnectToDatabase";
 import { QueryDatabase } from "./QueryDatabase";
 
+module.exports = {
+  ConnectToDatabase,
+  QueryDatabase,
+};
 const connectToDatabase = ConnectToDatabase(
   "localhost",
   "idris",
@@ -9,33 +13,15 @@ const connectToDatabase = ConnectToDatabase(
 );
 
 const queryDatabase = new QueryDatabase(connectToDatabase, "users");
-// queryDatabase.Get("username", "password", "password").then((result) => {
-//   console.log(result)
-// });
-// queryDatabase
-//   .GetAdvanced({
-//     column_name: ["username,email"],
-//     where: {
-//       password: "password",
-//     },
-//   })
-//   .then((result) => {
-//     console.log(result)
-//   });
-
-// queryDatabase.GetAll(1).then((result) => {
-//   console.log(result)
-// });
-
 // queryDatabase
 //   .Insert({
 //     username: "idris",
 //     password: "password",
 //     email: "saiduidris15@gmail.com",
-/// console.log(result);
-//   });/   })
+//   })
 //   .then((result) => {
-//
+//     console.log(result);
+//   });
 
 // queryDatabase
 //   .InsertMultiple([
@@ -58,6 +44,24 @@ const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 //   .then((result) => {
 //     console.log(result);
 //   });
+// queryDatabase.Get("username", "password", "password",1).then((result) => {
+//   console.log(result)
+// });
+// queryDatabase
+//   .GetAdvanced({
+//     column_name: ["username,email"],
+//     where: {
+//       password: "password",
+//     },
+//   })
+//   .then((result) => {
+//     console.log(result)
+//   });
+
+// queryDatabase.GetAll(1).then((result) => {
+//   console.log(result)
+// });
+
 
 // queryDatabase
 //   .Update("username", "idris", "username", "saidu", 1)
@@ -98,7 +102,7 @@ const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 // queryDatabase
 //   .Delete(
 //     'username','password',
-    
+
 //   )
 //   .then((result) => {
 //     console.log(result);
@@ -116,7 +120,7 @@ const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 
 // queryDatabase
 //   .DeleteAll(
-//     'users'  
+//     'users'
 //   )
 //   .then((result) => {
 //     console.log(result);
