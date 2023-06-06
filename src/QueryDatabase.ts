@@ -29,87 +29,93 @@ export class QueryDatabase implements IQueryDatabase {
   checkString(str: String, msg: string) {
     if (!str) throw new Error(msg + " is not set");
   }
-  Get(
+  async Get(
     column_name: string,
     where: string,
     value: string,
     limit: number | null = null
   ) {
-    return new Promise((resolve, reject) => {
+    try {
+      // Validate input parameters
       this.checkString(column_name, "column_name");
       this.checkString(where, "where");
       this.checkString(value, "value");
+
       let sql: string;
       if (!limit) {
         sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}';`;
       } else {
         sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}' LIMIT ${limit};`;
       }
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
-  GetAdvanced(params: IGetAdvancedParam, limit: number | null = null) {
-    return new Promise((resolve, reject) => {
+  async GetAdvanced(params: IGetAdvancedParam, limit: number | null = null) {
+    try {
       this.checkArray(params.column_name, "params.column_name");
       this.checkObject(params.where, "params.where");
 
       const column_name: string = params.column_name.join();
       let where: string = "";
+
       for (let [key, value] of Object.entries(params.where)) {
         where += `${key} = '${value}' AND `;
       }
+
       if (where.endsWith("AND ")) {
         where = where.slice(0, -4);
       }
+
       let sql: string;
       if (!limit) {
         sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where};`;
       } else {
         sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where} LIMIT ${limit};`;
       }
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
-  GetAll(limit: number | null = null) {
-    return new Promise((resolve, reject) => {
+  async GetAll(limit: number | null = null) {
+    try {
       let sql: string;
+
       if (!limit) {
         sql = `SELECT * FROM ${this.table_name} ;`;
       } else {
-        sql = `SELECT * FROM ${this.table_name}  LIMIT ${limit};`;
+        sql = `SELECT * FROM ${this.table_name} LIMIT ${limit};`;
       }
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
-  Insert(params: any) {
-    return new Promise((resolve, reject) => {
+  async Insert(params: any) {
+    try {
       let column_name: string | string[] = [];
       let value: string | string[] = [];
 
@@ -123,241 +129,245 @@ export class QueryDatabase implements IQueryDatabase {
       value = value.map((value) => `'${value}'`).join();
 
       const sql = `INSERT INTO ${this.table_name} (${column_name}) VALUES (${value})`;
-      console.log(sql);
 
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
-
-  InsertMultiple(params: any[]) {
-    return new Promise((resolve, reject) => {
+  async InsertMultiple(params: any[]) {
+    try {
       let column_name: string | string[] = [];
-      let value: any = [];
+      let values: any[] = [];
 
       this.checkArray(params, "param");
 
-      for (let [key, val] of Object.entries(params[0])) {
+      // Extract column names from the first parameter object
+      for (let [key] of Object.entries(params[0])) {
         column_name.push(key);
       }
-
-      params.forEach((param, i: number) => {
-        for (let [key, val] of Object.entries(param)) {
-          if (value[i]) value[i].push(val);
-          if (!value[i]) value[i] = [val];
-        }
-      });
       column_name = column_name.join();
 
-      value = value
-        .map((value: string[]) => {
-          return value.map((value) => `'${value}'`).join();
-        })
-        .map((value: string) => {
-          return "(" + value + ")";
-        })
-        .join();
-      const sql = `INSERT INTO ${this.table_name} (${column_name}) VALUES ${value}`;
+      // Extract and format values for each parameter set
+      values = params.map((param) =>
+        Object.values(param)
+          .map((value: any) => `'${value}'`)
+          .join()
+      );
 
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+      // Generate the SQL query string
+      const sql = `INSERT INTO ${
+        this.table_name
+      } (${column_name}) VALUES ${values.map((value) => `(${value})`).join()}`;
+
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
-  Update(
+  async Update(
     column_name: string,
     column_value: string,
     where: string,
     value: string,
     limit: number | null = null
   ) {
-    return new Promise((resolve, reject) => {
-      let sql: string;
+    try {
+      // Check the input parameters
       this.checkString(column_name, "column_name");
       this.checkString(column_value, "column_value");
       this.checkString(where, "where");
       this.checkString(value, "value");
-
+  
+      let sql: string;
+  
+      // Build the SQL query based on the provided parameters
       if (!limit) {
         sql = `UPDATE ${this.table_name} SET ${column_name} ='${column_value}' WHERE ${where}='${value}';`;
       } else {
         sql = `UPDATE ${this.table_name} SET ${column_name} ='${column_value}' WHERE ${where}='${value}' LIMIT ${limit};`;
       }
-
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+  
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+  
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
-
-  UpdateAdvanced(params: IUpdateAdvancedParam, limit: number | null = null) {
-    return new Promise((resolve, reject) => {
+  
+  async UpdateAdvanced(params: IUpdateAdvancedParam, limit: number | null = null) {
+    try {
       this.checkObject(params.update, "params.update");
       this.checkObject(params.where, "params.where");
-
+  
       let update: string = "";
       let where: string = "";
+  
+      // Construct the SET clause for update
       for (let [key, value] of Object.entries(params.update)) {
         update += `${key} = '${value}' ,`;
       }
+  
+      // Construct the WHERE clause for filtering
       for (let [key, value] of Object.entries(params.where)) {
         where += `${key} = '${value}' AND `;
       }
-
+  
+      // Remove trailing commas and 'AND' from clauses
       if (update.endsWith(",")) {
         update = update.slice(0, -1);
       }
-
       if (where.endsWith("AND ")) {
         where = where.slice(0, -4);
       }
+  
       let sql: string;
       if (!limit) {
         sql = `UPDATE  ${this.table_name} SET ${update} WHERE ${where};`;
       } else {
         sql = `UPDATE  ${this.table_name} SET ${update} WHERE ${where} LIMIT ${limit};`;
       }
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+  
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+  
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
+  
 
-  UpdateAll(set: any, limit: number | null = null) {
-    return new Promise((resolve, reject) => {
+  async UpdateAll(set: any, limit: number | null = null) {
+    try {
       this.checkObject(set, "set");
+  
       let update: string = "";
       for (let [key, value] of Object.entries(set)) {
         update += `${key} = '${value}' ,`;
       }
-
+  
       if (update.endsWith(",")) {
         update = update.slice(0, -1);
       }
+  
       let sql: string;
       if (!limit) {
         sql = `UPDATE ${this.table_name} SET ${update} ;`;
       } else {
         sql = `UPDATE ${this.table_name} SET ${update}  LIMIT ${limit};`;
       }
-
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+  
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+  
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
-
-  Delete(column_name: string, value: string, limit: number | null = null) {
-    return new Promise((resolve, reject) => {
+  
+  async Delete(column_name: string, value: string, limit: number | null = null) {
+    try {
       let sql: string = "";
       if (!limit) {
         sql = `DELETE FROM ${this.table_name} WHERE ${column_name} = ${value};`;
       } else {
         sql = `DELETE FROM ${this.table_name} WHERE ${column_name} = '${value}' LIMIT ${limit};`;
       }
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+  
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+  
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
+  
 
-  DeleteAdvanced(where: any, limit: number | null = null) {
-    return new Promise((resolve, reject) => {
+  async DeleteAdvanced(where: any, limit: number | null = null) {
+    try {
       let value: string = "";
-
+  
       this.checkObject(where, "param");
-
+  
+      // Construct the WHERE clause based on the provided conditions
       for (let [key, val] of Object.entries(where)) {
         value += `${key} = '${val}' AND `;
       }
       if (value.endsWith("AND ")) {
         value = value.slice(0, -4);
       }
+  
       let sql: string = "";
       if (!limit) {
         sql = `DELETE FROM ${this.table_name} WHERE ${value};`;
       } else {
         sql = `DELETE FROM ${this.table_name} WHERE ${value} LIMIT ${limit};`;
       }
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+  
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
-
-  DeleteAll(table_name: string) {
-    return new Promise((resolve, reject) => {
-      if (table_name !== this.table_name)
+  
+  async DeleteAll(table_name: string) {
+    try {
+      // Check if the table name is the same
+      if (table_name !== this.table_name) {
         throw new Error("Table name is not the same");
-      let sql = `DELETE FROM ${this.table_name} ;`;
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+      }
+  
+      // Construct the SQL query
+      const sql = `DELETE FROM ${this.table_name};`;
+  
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+  
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
-
-  CustomSQL(sql: string) {
-    return new Promise((resolve, reject) => {
-      this.checkString(sql, "sql");
-      const query = this.#db.query(sql, (err: Error, result: any) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          this.#db.releaseConnection(query);
-          resolve(result);
-        }
-      });
-    });
+  
+  async CustomSQL(sql: string) {
+    this.checkString(sql, "sql");
+    try {
+      const [result] = await this.#db.query(sql);
+      return result;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
+  
 }

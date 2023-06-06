@@ -5,14 +5,14 @@ module.exports = {
   ConnectToDatabase,
   QueryDatabase,
 };
-const connectToDatabase = ConnectToDatabase(
-  "localhost",
-  "idris",
-  "password",
-  "node-mysql"
-);
+// const connectToDatabase = ConnectToDatabase(
+//   "localhost",
+//   "idris",
+//   "password",
+//   "node-mysql"
+// );
 
-const queryDatabase = new QueryDatabase(connectToDatabase, "users");
+// const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 // queryDatabase
 //   .Insert({
 //     username: "idris",

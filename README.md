@@ -1,19 +1,19 @@
 # node-mysql-easy
-## Open an issue in the github if you notice any bug or want me to add an new feature
+### Open an issue in the github if you notice any bug or want me to add an new feature
 
-# Import
+## Import
 
 `const {ConnectToDatabase,QueryDatabase} = require('node-mysql')`
 
-# To connect to the mysql database <br>
+## To connect to the mysql database <br>
 
 `const connectToDatabase = ConnectToDatabase(host,username,password,databasename);`
 
-# To create instance query database class of table <br>
+## To create instance query database class of table <br>
 
 `const queryDatabase = new QueryDatabase(connectToDatabase, tablename);`
 
-# To insert a single row into the table: <br>
+## To insert a single row into the table: <br>
 
 `queryDatabase.Insert({
     columnname1: value,
@@ -23,7 +23,7 @@
     console.log(result);
   });`
 
-## Example: <br>
+### Example: <br>
 
 `queryDatabase.Insert({
     username: "idris",
@@ -33,7 +33,7 @@
     console.log(result);
   });`
 
-# To insert a multiple rows into the table: <br>
+## To insert a multiple rows into the table: <br>
 
 `queryDatabase.InsertMultiple([
     {
@@ -55,7 +55,7 @@
     console.log(result);
   });`
 
-## Example:<br>
+### Example:<br>
 
 `queryDatabase.InsertMultiple([
     {
@@ -77,33 +77,33 @@
     console.log(result);
   });`
 
-# To get data from database: <br>
+## To get data from database: <br>
 
-## Let say you want to get all data from database<br>
+### Let say you want to get all data from database<br>
 
 `queryDatabase.GetAll().then((result) => {
  console.log(result)
  });`
 
-## Let say you want to get all data from database but limit to return only 2 rows<br>
+### Let say you want to get all data from database but limit to return only 2 rows<br>
 
 `queryDatabase.GetAll(2).then((result) => {
  console.log(result)
  });`
 
-## Let say i want to get username where password is equal to idrisIdris<br>
+### Let say i want to get username where password is equal to idrisIdris<br>
 
 `queryDatabase.Get("username", "password", "idrisIdris").then((result) => {
   console.log(result)
 });`
 
-## Let say i want to get username where password is equal to idrisIdris and limit that data to 2 rows<br>
+### Let say i want to get username where password is equal to idrisIdris and limit that data to 2 rows<br>
 
 `queryDatabase.Get("username", "password", "idrisIdris",2).then((result) => {
   console.log(result)
 });`
 
-## Let say i want to get username and email with where password = 'idrisIdris' and username ='idris'
+### Let say i want to get username and email with where password = 'idrisIdris' and username ='idris'
 
 `queryDatabase
   .GetAdvanced({
@@ -117,9 +117,9 @@
     console.log(result)
   });`
 
-# To update table: <br>
+## To update table: <br>
 
-## Let say i want to update all username to 'idris' and email to 'saiduidris13@gmail.com'
+### Let say i want to update all username to 'idris' and email to 'saiduidris13@gmail.com'
 
 `queryDatabase
   .UpdateAll(
@@ -132,7 +132,7 @@
     console.log(result);
   });`
 
-## Let say i want to update all username to 'idris' and email to 'saiduidris13@gmail.com' and limit updated data to 5
+### Let say i want to update all username to 'idris' and email to 'saiduidris13@gmail.com' and limit updated data to 5
 
 `queryDatabase
   .UpdateAll(
@@ -145,7 +145,7 @@
     console.log(result);
   });`
 
-## Let say i want to update value 'idris' to username where username = 'saidu'
+### Let say i want to update value 'idris' to username where username = 'saidu'
 
 `queryDatabase
   .Update("username", "idris", "username", "saidu")
@@ -153,7 +153,7 @@
     console.log(result);
   });`
 
-## Let say i want to insert value 'idris' to username where username = 'saidu' and limit updated data to 3
+### Let say i want to insert value 'idris' to username where username = 'saidu' and limit updated data to 3
 
 `queryDatabase
   .Update("username", "idris", "username", "saidu",3)
@@ -161,7 +161,7 @@
     console.log(result);
   });`
 
-## Let say you want to update username and email where password = "idrisIdris" and email = "saiduiidris15@gmail.com"
+### Let say you want to update username and email where password = "idrisIdris" and email = "saiduidris15@gmail.com"
 
 `queryDatabase
   .UpdateAdvanced(
@@ -181,7 +181,7 @@
   });
 `
 
-## Let say you want to update username and email where password = "idrisIdris" and email = "saiduiidris15@gmail.com" and limit updated data to 2
+### Let say you want to update username and email where password = "idrisIdris" and email = "saiduidris15@gmail.com" and limit updated data to 2
 
 `queryDatabase
   .UpdateAdvanced(
@@ -202,9 +202,9 @@
   });
 `
 
-# To Delete table: <br>
+## To Delete table: <br>
 
-## Let say i want to delete table "users" <br>
+### Let say i want to delete table "users" <br>
 
 `queryDatabase
   .DeleteAll(
@@ -214,7 +214,7 @@
     console.log(result);
   });`
 
-## Let say i want to delete table where username = 'idris'
+### Let say i want to delete table where username = 'idris'
 
 `queryDatabase
 .Delete(
@@ -225,7 +225,7 @@
 console.log(result);
 });`
 
-## Let say i want to delete table where username = 'idris', limit deleted data to 2
+### Let say i want to delete table where username = 'idris', limit deleted data to 2
 
 `queryDatabase
 .Delete(
@@ -236,7 +236,7 @@ console.log(result);
 console.log(result);
 });`
 
-## Let say i want to delete table where username = 'idris' and email = 'saiduidris13@gmail.com'`queryDatabase
+### Let say i want to delete table where username = 'idris' and email = 'saiduidris13@gmail.com'`queryDatabase
 
 .DeleteAdvanced(
 {
@@ -249,7 +249,7 @@ console.log(result);
 });
 `
 
-## Let say i want to delete table where username = 'idris' and email = 'saiduidris13@gmail.com' and limit deleted data to 3
+### Let say i want to delete table where username = 'idris' and email = 'saiduidris13@gmail.com' and limit deleted data to 3
 
 `queryDatabase
   .DeleteAdvanced(
@@ -264,7 +264,7 @@ console.log(result);
   });
 `
 
-# Custom SQL: <br>
+## Custom SQL: <br>
 
 `queryDatabase
 .CustomSQL(sqlString)
@@ -272,7 +272,7 @@ console.log(result);
 console.log(result);
 });`
 
-## Example
+### Example
 
 `queryDatabase
 .CustomSQL(SELECT id, name, email

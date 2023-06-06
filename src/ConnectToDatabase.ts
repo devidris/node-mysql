@@ -1,4 +1,4 @@
-import mysql = require("mysql2");
+import mysql = require("mysql2/promise");
 export function ConnectToDatabase(
   host: string,
   user: string,
