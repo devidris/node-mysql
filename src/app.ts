@@ -5,14 +5,14 @@ module.exports = {
   ConnectToDatabase,
   QueryDatabase,
 };
-// const connectToDatabase = ConnectToDatabase(
-//   "localhost",
-//   "idris",
-//   "password",
-//   "node-mysql"
-// );
+const connectToDatabase = ConnectToDatabase(
+  "localhost",
+  "idris",
+  "password",
+  "node-mysql"
+);
 
-// const queryDatabase = new QueryDatabase(connectToDatabase, "users");
+const queryDatabase = new QueryDatabase(connectToDatabase, "users");
 // queryDatabase
 //   .Insert({
 //     username: "idris",
@@ -49,19 +49,25 @@ module.exports = {
 // });
 // queryDatabase
 //   .GetAdvanced({
-//     column_name: ["username,email"],
-//     where: {
+//     column_names: ["username,email"],
+//     and: {
 //       password: "password",
+//       name: "idris",
 //     },
+//     or: {
+//       username: "idris",
+//       name: "silas",
+//     },
+//     joinwith: "or",
+//     debug: true,
 //   })
 //   .then((result) => {
-//     console.log(result)
+//     console.log(result);
 //   });
 
 // queryDatabase.GetAll(1).then((result) => {
 //   console.log(result)
 // });
-
 
 // queryDatabase
 //   .Update("username", "idris", "username", "saidu", 1)
@@ -76,10 +82,15 @@ module.exports = {
 //         username: "password",
 //         email: "idris",
 //       },
-//       where: {
+//       and: {
 //         password: "password",
 //         email: "saiduidris15@gmail.com",
 //       },
+//       or: {
+//         password: "password",
+//         email: "saiduidris15@gmail.com",
+//       },
+//       debug:true
 //     },
 //     1
 //   )
@@ -110,7 +121,10 @@ module.exports = {
 // queryDatabase
 //   .DeleteAdvanced(
 //     {
-//       username: "password",
+//       or:{
+//         username: "password",
+//         name:'idris'
+//       }
 //     },
 //     1
 //   )

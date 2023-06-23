@@ -1,4 +1,5 @@
 import {
+  IDeleteAdvancedParam,
   IGetAdvancedParam,
   IQueryDatabase,
   IUpdateAdvancedParam,
@@ -28,90 +29,6 @@ export class QueryDatabase implements IQueryDatabase {
 
   checkString(str: String, msg: string) {
     if (!str) throw new Error(msg + " is not set");
-  }
-  async Get(
-    column_name: string,
-    where: string,
-    value: string,
-    limit: number | null = null
-  ) {
-    try {
-      // Validate input parameters
-      this.checkString(column_name, "column_name");
-      this.checkString(where, "where");
-      this.checkString(value, "value");
-
-      let sql: string;
-      if (!limit) {
-        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}';`;
-      } else {
-        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}' LIMIT ${limit};`;
-      }
-
-      // Execute the query and wait for the result using `await`
-      const [result] = await this.#db.query(sql);
-
-      // Return the query result
-      return result;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
-  async GetAdvanced(params: IGetAdvancedParam, limit: number | null = null) {
-    try {
-      this.checkArray(params.column_name, "params.column_name");
-      this.checkObject(params.where, "params.where");
-
-      const column_name: string = params.column_name.join();
-      let where: string = "";
-
-      for (let [key, value] of Object.entries(params.where)) {
-        where += `${key} = '${value}' AND `;
-      }
-
-      if (where.endsWith("AND ")) {
-        where = where.slice(0, -4);
-      }
-
-      let sql: string;
-      if (!limit) {
-        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where};`;
-      } else {
-        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where} LIMIT ${limit};`;
-      }
-
-      // Execute the query and wait for the result using `await`
-      const [result] = await this.#db.query(sql);
-
-      // Return the query result
-      return result;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
-  async GetAll(limit: number | null = null) {
-    try {
-      let sql: string;
-
-      if (!limit) {
-        sql = `SELECT * FROM ${this.table_name} ;`;
-      } else {
-        sql = `SELECT * FROM ${this.table_name} LIMIT ${limit};`;
-      }
-
-      // Execute the query and wait for the result using `await`
-      const [result] = await this.#db.query(sql);
-
-      // Return the query result
-      return result
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
   }
 
   async Insert(params: any) {
@@ -176,6 +93,128 @@ export class QueryDatabase implements IQueryDatabase {
     }
   }
 
+  async Get(
+    column_name: string,
+    where: string,
+    value: string,
+    limit: number | null = null
+  ) {
+    try {
+      // Validate input parameters
+      this.checkString(column_name, "column_name");
+      this.checkString(where, "where");
+      this.checkString(value, "value");
+
+      let sql: string;
+      if (!limit) {
+        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}';`;
+      } else {
+        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where}='${value}' LIMIT ${limit};`;
+      }
+
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async GetAdvanced(params: IGetAdvancedParam, limit: number | null = null) {
+    try {
+      this.checkArray(params.column_names, "params.column_name");
+
+      const column_name: string = params.column_names.join();
+      let where: string = "";
+      let whereor!: string;
+      let whereand!: string;
+
+      if (params.and) {
+        for (let [key, value] of Object.entries(params.and)) {
+          if (!whereand) whereand = "";
+          whereand += `${key} = '${value}' AND `;
+        }
+        if (whereand.endsWith("AND ")) {
+          whereand = whereand.slice(0, -5);
+        }
+
+        whereand = "(" + whereand + ")";
+      }
+
+      if (params.or) {
+        for (let [key, value] of Object.entries(params.or)) {
+          if (!whereor) whereor = "";
+          whereor += `${key} = '${value}' OR `;
+        }
+        if (whereor.endsWith("OR ")) {
+          whereor = whereor.slice(0, -4);
+        }
+        whereor = "(" + whereor + ")";
+      }
+
+      if (params.joinwith?.toLowerCase() === "and") {
+        if (!whereand) {
+          where = whereor;
+        } else if (!whereor) {
+          where = whereand;
+        } else {
+          where = whereand + " OR " + whereor;
+        }
+      } else {
+        if (!whereand) {
+          where = whereor;
+        } else if (!whereor) {
+          where = whereand;
+        } else {
+          where = whereand + " OR " + whereor;
+        }
+      }
+
+      let sql: string;
+      if (!limit) {
+        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where};`;
+      } else {
+        sql = `SELECT ${column_name} FROM ${this.table_name} WHERE ${where} LIMIT ${limit};`;
+      }
+      if (params.debug) {
+        console.log(sql);
+      }
+
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async GetAll(limit: number | null = null) {
+    try {
+      let sql: string;
+
+      if (!limit) {
+        sql = `SELECT * FROM ${this.table_name} ;`;
+      } else {
+        sql = `SELECT * FROM ${this.table_name} LIMIT ${limit};`;
+      }
+
+      // Execute the query and wait for the result using `await`
+      const [result] = await this.#db.query(sql);
+
+      // Return the query result
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   async Update(
     column_name: string,
     column_value: string,
@@ -189,19 +228,19 @@ export class QueryDatabase implements IQueryDatabase {
       this.checkString(column_value, "column_value");
       this.checkString(where, "where");
       this.checkString(value, "value");
-  
+
       let sql: string;
-  
+
       // Build the SQL query based on the provided parameters
       if (!limit) {
         sql = `UPDATE ${this.table_name} SET ${column_name} ='${column_value}' WHERE ${where}='${value}';`;
       } else {
         sql = `UPDATE ${this.table_name} SET ${column_name} ='${column_value}' WHERE ${where}='${value}' LIMIT ${limit};`;
       }
-  
+
       // Execute the query and wait for the result using `await`
       const [result] = await this.#db.query(sql);
-  
+
       // Return the query result
       return result;
     } catch (error) {
@@ -209,43 +248,83 @@ export class QueryDatabase implements IQueryDatabase {
       throw error;
     }
   }
-  
-  async UpdateAdvanced(params: IUpdateAdvancedParam, limit: number | null = null) {
+
+  async UpdateAdvanced(
+    params: IUpdateAdvancedParam,
+    limit: number | null = null
+  ) {
     try {
       this.checkObject(params.update, "params.update");
-      this.checkObject(params.where, "params.where");
-  
+
       let update: string = "";
       let where: string = "";
-  
+      let whereor!: string;
+      let whereand!: string;
+
       // Construct the SET clause for update
       for (let [key, value] of Object.entries(params.update)) {
         update += `${key} = '${value}' ,`;
       }
-  
+
       // Construct the WHERE clause for filtering
-      for (let [key, value] of Object.entries(params.where)) {
-        where += `${key} = '${value}' AND `;
+      if (params.and) {
+        for (let [key, value] of Object.entries(params.and)) {
+          if (!whereand) whereand = "";
+          whereand += `${key} = '${value}' AND `;
+        }
+        if (whereand.endsWith("AND ")) {
+          whereand = whereand.slice(0, -5);
+        }
+
+        whereand = "(" + whereand + ")";
       }
-  
+
+      if (params.or) {
+        for (let [key, value] of Object.entries(params.or)) {
+          if (!whereor) whereor = "";
+          whereor += `${key} = '${value}' OR `;
+        }
+        if (whereor.endsWith("OR ")) {
+          whereor = whereor.slice(0, -4);
+        }
+        whereor = "(" + whereor + ")";
+      }
+
+      if (params.joinwith?.toLowerCase() === "and") {
+        if (!whereand) {
+          where = whereor;
+        } else if (!whereor) {
+          where = whereand;
+        } else {
+          where = whereand + " OR " + whereor;
+        }
+      } else {
+        if (!whereand) {
+          where = whereor;
+        } else if (!whereor) {
+          where = whereand;
+        } else {
+          where = whereand + " OR " + whereor;
+        }
+      }
+
       // Remove trailing commas and 'AND' from clauses
       if (update.endsWith(",")) {
         update = update.slice(0, -1);
       }
-      if (where.endsWith("AND ")) {
-        where = where.slice(0, -4);
-      }
-  
+
       let sql: string;
       if (!limit) {
         sql = `UPDATE  ${this.table_name} SET ${update} WHERE ${where};`;
       } else {
         sql = `UPDATE  ${this.table_name} SET ${update} WHERE ${where} LIMIT ${limit};`;
       }
-  
+      if (params.debug) {
+        console.log(sql);
+      }
       // Execute the query and wait for the result using `await`
       const [result] = await this.#db.query(sql);
-  
+
       // Return the query result
       return result;
     } catch (error) {
@@ -253,31 +332,30 @@ export class QueryDatabase implements IQueryDatabase {
       throw error;
     }
   }
-  
 
   async UpdateAll(set: any, limit: number | null = null) {
     try {
       this.checkObject(set, "set");
-  
+
       let update: string = "";
       for (let [key, value] of Object.entries(set)) {
         update += `${key} = '${value}' ,`;
       }
-  
+
       if (update.endsWith(",")) {
         update = update.slice(0, -1);
       }
-  
+
       let sql: string;
       if (!limit) {
         sql = `UPDATE ${this.table_name} SET ${update} ;`;
       } else {
         sql = `UPDATE ${this.table_name} SET ${update}  LIMIT ${limit};`;
       }
-  
+
       // Execute the query and wait for the result using `await`
       const [result] = await this.#db.query(sql);
-  
+
       // Return the query result
       return result;
     } catch (error) {
@@ -285,8 +363,12 @@ export class QueryDatabase implements IQueryDatabase {
       throw error;
     }
   }
-  
-  async Delete(column_name: string, value: string, limit: number | null = null) {
+
+  async Delete(
+    column_name: string,
+    value: string,
+    limit: number | null = null
+  ) {
     try {
       let sql: string = "";
       if (!limit) {
@@ -294,10 +376,10 @@ export class QueryDatabase implements IQueryDatabase {
       } else {
         sql = `DELETE FROM ${this.table_name} WHERE ${column_name} = '${value}' LIMIT ${limit};`;
       }
-  
+
       // Execute the query and wait for the result using `await`
       const [result] = await this.#db.query(sql);
-  
+
       // Return the query result
       return result;
     } catch (error) {
@@ -305,29 +387,69 @@ export class QueryDatabase implements IQueryDatabase {
       throw error;
     }
   }
-  
 
-  async DeleteAdvanced(where: any, limit: number | null = null) {
+  async DeleteAdvanced(
+    params: IDeleteAdvancedParam,
+    limit: number | null = null
+  ) {
     try {
       let value: string = "";
-  
-      this.checkObject(where, "param");
-  
-      // Construct the WHERE clause based on the provided conditions
-      for (let [key, val] of Object.entries(where)) {
-        value += `${key} = '${val}' AND `;
+
+      let where: string = "";
+      let whereor!: string;
+      let whereand!: string;
+
+      // Construct the WHERE clause for filtering
+      if (params.and) {
+        for (let [key, value] of Object.entries(params.and)) {
+          if (!whereand) whereand = "";
+          whereand += `${key} = '${value}' AND `;
+        }
+        if (whereand.endsWith("AND ")) {
+          whereand = whereand.slice(0, -5);
+        }
+
+        whereand = "(" + whereand + ")";
       }
-      if (value.endsWith("AND ")) {
-        value = value.slice(0, -4);
+      if (params.or) {
+        for (let [key, value] of Object.entries(params.or)) {
+          if (!whereor) whereor = "";
+          whereor += `${key} = '${value}' OR `;
+        }
+        if (whereor.endsWith("OR ")) {
+          whereor = whereor.slice(0, -4);
+        }
+        whereor = "(" + whereor + ")";
       }
-  
+      if (params.joinwith?.toLowerCase() === "and") {
+        if (!whereand) {
+          where = whereor;
+        } else if (!whereor) {
+          where = whereand;
+        } else {
+          where = whereand + " OR " + whereor;
+        }
+      } else {
+        if (!whereand) {
+          where = whereor;
+        } else if (!whereor) {
+          where = whereand;
+        } else {
+          where = whereand + " OR " + whereor;
+        }
+      }
+
       let sql: string = "";
       if (!limit) {
-        sql = `DELETE FROM ${this.table_name} WHERE ${value};`;
+        sql = `DELETE FROM ${this.table_name} WHERE ${where};`;
       } else {
-        sql = `DELETE FROM ${this.table_name} WHERE ${value} LIMIT ${limit};`;
+        sql = `DELETE FROM ${this.table_name} WHERE ${where} LIMIT ${limit};`;
       }
-  
+
+      if (params.debug) {
+        console.log(sql);
+      }
+
       // Execute the query and wait for the result using `await`
       const [result] = await this.#db.query(sql);
       // Return the query result
@@ -337,20 +459,20 @@ export class QueryDatabase implements IQueryDatabase {
       throw error;
     }
   }
-  
+
   async DeleteAll(table_name: string) {
     try {
       // Check if the table name is the same
       if (table_name !== this.table_name) {
         throw new Error("Table name is not the same");
       }
-  
+
       // Construct the SQL query
       const sql = `DELETE FROM ${this.table_name};`;
-  
+
       // Execute the query and wait for the result using `await`
       const [result] = await this.#db.query(sql);
-  
+
       // Return the query result
       return result;
     } catch (error) {
@@ -358,7 +480,7 @@ export class QueryDatabase implements IQueryDatabase {
       throw error;
     }
   }
-  
+
   async CustomSQL(sql: string) {
     this.checkString(sql, "sql");
     try {
@@ -369,5 +491,4 @@ export class QueryDatabase implements IQueryDatabase {
       throw err;
     }
   }
-  
 }
